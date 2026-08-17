@@ -4,16 +4,20 @@ import { middlewareLogResponses } from './middlewares/middlewareLogResponses.js'
 import { middlewareMetricsInc } from './middlewares/middlewareMetricsInc.js';
 import { serverHitsCount } from './handlers/serverHitsCount.js';
 import { resetServerHits } from './handlers/resetServerHits.js';
+import { validateHandler } from './handlers/validateHandler.js';
 
 const app: Express = express();
 const port = 8080;
 
+app.use(express.json());
 
-app.get('/healthz', handlerReadiness)
+app.get('/api/healthz', handlerReadiness)
 
-app.get('/metrics', serverHitsCount)
+app.post('/api/validate_chirp', validateHandler)
 
-app.get('/reset', resetServerHits)
+app.get('/admin/metrics', serverHitsCount)
+
+app.post('/admin/reset', resetServerHits)
 
 app.use("/app", middlewareMetricsInc, express.static('./src/app', {setHeaders(res) {res.set("Cache-Control", "no-cache")}}));
 
