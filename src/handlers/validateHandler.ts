@@ -1,4 +1,5 @@
 import { type Request, type Response } from 'express'
+import { BadGatewayError } from '../middlewares/errorHandlerMiddleware.js';
 
 export function validateHandler(req: Request, res: Response){
 
@@ -6,19 +7,13 @@ export function validateHandler(req: Request, res: Response){
         body: string;
     };
 
-    try{
-        const params: parameters = req.body;
+    const params: parameters = req.body;
 
-        if(params.body.length > 140){
-            res.status(400).send({"error": "Chirp is too long"});
-            return;
-        }
-
-        const cleanString = params.body.replaceAll(/kerfuffle|sharbert|fornax/gi, "****");
-
-        res.send(JSON.stringify({"cleanedBody": cleanString}));
-        
-    } catch (error) {
-        res.status(400).send({"error": "Something went wrong"});
+    if(params.body.length > 140){            
+        throw new BadGatewayError("Chirp is too long. Max length is 140");
     }
+
+    const cleanString = params.body.replaceAll(/kerfuffle|sharbert|fornax/gi, "****");
+
+    res.send(JSON.stringify({"cleanedBody": cleanString}));
 }
